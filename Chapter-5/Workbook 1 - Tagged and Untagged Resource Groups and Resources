@@ -1,0 +1,233 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "value": [
+              "/subscriptions/f48affae-430d-4570-b20e-2ab1c49e4366",
+              "/subscriptions/b2a328a7-ffff-4c09-b643-a4758cf170bc"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "param-sub"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## FinOps Handbook for Microsoft Azure by Packt Publishing | Chapter 5 Hitting the goals for Usage Optimization \r\n### Target 1 -  98% of all your Resources must be tagged"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Tagging plays pivotal role for allocating and tracking the budget for each application. When following best practices for tag management, tags can be the basis for applying your business policies with Azure Policy or tracking costs with Cost Management.\r\n\r\nThe goal is to have 98% of all azure resources must have all the required tags. \r\n\r\nThe report below shows 5 key data. First two are Tagged vs. Untagged Resource Groups as well Resources in a Pie chart format. Second two tables display more information about Tagged vs. Untagged Resource Group Names. The last table list all Untagged Resources.\r\n\r\nConsider using Azure Policy to place mandatory Tag rules such as Enforce Tags on Resource Groups and inheritance on the Resources.\r\n\r\nhttps://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-policies\r\n",
+              "style": "info"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers\r\n| where type =~ 'microsoft.resources/subscriptions/resourcegroups'\r\n| extend TagBool = iff(tags != '' and tags != '[]', \"Tagged\",\"Untagged\")\r\n| summarize count() by TagBool\r\n//| project resourceGroup, tags\r\n",
+              "size": 0,
+              "title": "Tagged vs. Untagged Resource Groups",
+              "exportFieldName": "resourceGroupTag",
+              "exportParameterName": "resourceGroupTag",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "name": "rg-tag-query1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources | extend TagBool = iff(tags != '' and tags != '[]', \"Tagged\",\"Untagged\") | summarize count() by TagBool\r\n\r\n",
+              "size": 0,
+              "title": "Tagged vs. Untagged Resources Count",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "piechart",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "TagBool",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "count_",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              },
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "TagBool",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "count_",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "50",
+            "name": "rg-tag-query2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers\r\n| where type =~ 'Microsoft.Resources/subscriptions' \r\n| extend SubscriptionName=name \r\n| join  ( ResourceContainers | where type =~ 'microsoft.resources/subscriptions/resourcegroups'  | where tags !~ '' and tags != '{}'\r\n| extend resourceGroupName=id, RGLocation=location, RGTags=tags) on subscriptionId\r\n| project resourceGroupName, RGTags, RGLocation, SubscriptionName\r\n",
+              "size": 0,
+              "title": "Tagged Resource Groups",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "customWidth": "50",
+            "name": "rg-tag-query3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers\r\n| where type =~ 'Microsoft.Resources/subscriptions' \r\n| extend SubscriptionName=name \r\n| join  ( ResourceContainers | where type =~ 'microsoft.resources/subscriptions/resourcegroups' | where tags =~ '' or tags =~ '{}'\r\n| extend resourceGroupName=id, RGLocation=location) on subscriptionId\r\n| project resourceGroupName, RGLocation, SubscriptionName\r\n",
+              "size": 0,
+              "title": "Untagged Resource Groups",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "customWidth": "50",
+            "name": "rg-tag-query4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources | where tags == ''\r\n| project Name=id, subscriptionId\r\n",
+              "size": 3,
+              "title": "Untagged Resources",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": "Resource",
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Name",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 1000,
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "subscriptionId"
+                  ],
+                  "expandTopLevel": true,
+                  "finalBy": "Name"
+                }
+              }
+            },
+            "name": "tags-q1"
+          }
+        ]
+      },
+      "name": "Tagging",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
