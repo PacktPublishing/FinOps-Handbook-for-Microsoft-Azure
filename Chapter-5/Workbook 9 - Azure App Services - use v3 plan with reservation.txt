@@ -1,0 +1,214 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "value": [
+              "/subscriptions/f48affae-430d-4570-b20e-2ab1c49e4366"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "param-sub"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## FinOps Handbook for Microsoft Azure by Packt Publishing | Chapter 5 Hitting the goals for Usage Optimization \r\n### Target 9 -  Azure App Services - use v3 plan with reservation and auto scaling"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "When ",
+              "style": "info"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' \r\n    | extend SubscriptionName=name \r\n    | join \t( resources | where type =~ 'Microsoft.Web/sites' \r\n    | extend WebAppId=id, WebAppRG=resourceGroup, WebAppName=name, AppServicePlan=tostring(properties.serverFarmId), SKU=tostring(properties.sku), Type=kind, Status=tostring(properties.state), WebAppLocation=location) on subscriptionId\r\n    | order by WebAppId asc \r\n     | join ( resources | mvexpand tags | extend  WebAppName=name,Tags=tags, resourceGroup \r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName]) ) on WebAppName\r\n | project WebAppId,WebAppName, Type, Status, WebAppLocation, AppServicePlan, WebAppRG,tagName,tagValue,SubscriptionName",
+              "size": 0,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "isVisible",
+              "comparison": "isEqualTo",
+              "value": "Never"
+            },
+            "name": "target9-q1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.web/serverfarms\"\r\n| extend  skuname = tostring(sku.name) ,WebAppId=id, skutier = tostring(sku.tier), workers=tostring(properties.numberOfWorkers),webRG=resourceGroup,maxworkers=tostring(properties.maximumNumberOfWorkers),WebAppName=name\r\n| join ( resources | mvexpand tags | extend  WebAppName=name,Tags=tags, resourceGroup \r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName]) ) on WebAppName\r\n| project WebAppId,WebAppName,skuname,skutier,workers, maxworkers,webRG,tagName,tagValue",
+              "size": 0,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "isVisible",
+              "comparison": "isEqualTo",
+              "value": "Never"
+            },
+            "name": "target9-q2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type ==\"microsoft.insights/autoscalesettings\"\r\n| join ( resources | mvexpand tags | extend name,Tags=tags, resourceGroup \r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName]) ) on name\r\n| project id=properties.targetResourceUri, PredictiveAutoscale=properties.predictiveAutoscalePolicy.scaleMode, AutoScaleProfiles=properties.profiles,resourceGroup,tagName,tagValue",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "isVisible",
+              "comparison": "isEqualTo",
+              "value": "Never"
+            },
+            "name": "target9-q3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\",\"mergeType\":\"innerunique\",\"leftTable\":\"target9-q1\",\"rightTable\":\"target9-q2\",\"leftColumn\":\"AppServicePlan\",\"rightColumn\":\"WebAppId\"},{\"id\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\",\"mergeType\":\"leftouter\",\"leftTable\":\"target9-q2\",\"rightTable\":\"target9-q3\",\"leftColumn\":\"WebAppId\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[target9-q1].WebAppId\",\"mergedName\":\"WebAppId\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].Type\",\"mergedName\":\"Type\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].Status\",\"mergedName\":\"Status\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].WebAppLocation\",\"mergedName\":\"WebAppLocation\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].WebAppRG\",\"mergedName\":\"WebAppRG\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].skuname\",\"mergedName\":\"skuname\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].skutier\",\"mergedName\":\"skutier\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].tagName\",\"mergedName\":\"tagName\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].tagValue\",\"mergedName\":\"tagValue\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].SubscriptionName\",\"mergedName\":\"SubscriptionName\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].WebAppId\",\"mergedName\":\"WebAppId1\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].WebAppName\",\"mergedName\":\"WebAppName1\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].workers\",\"mergedName\":\"workers\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].maxworkers\",\"mergedName\":\"maxworkers\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].webRG\",\"mergedName\":\"webRG\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].tagName\",\"mergedName\":\"tagName1\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q2].tagValue\",\"mergedName\":\"tagValue1\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q3].PredictiveAutoscale\",\"mergedName\":\"PredictiveAutoscale\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\"},{\"originalName\":\"[target9-q3].AutoScaleProfiles\",\"mergedName\":\"AutoScaleProfiles\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\"},{\"originalName\":\"[target9-q3].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\"},{\"originalName\":\"[target9-q3].tagName\",\"mergedName\":\"tagName2\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\"},{\"originalName\":\"[target9-q3].tagValue\",\"mergedName\":\"tagValue2\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b269\"},{\"originalName\":\"[target9-q1].AppServicePlan\",\"mergedName\":\"AppServicePlan\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q1].WebAppName\",\"mergedName\":\"WebAppName\",\"fromId\":\"3fddbdd9-c4eb-46ae-b6b0-654c0da7b268\"},{\"originalName\":\"[target9-q3].id\"}]}",
+              "size": 0,
+              "title": "Web Apps",
+              "showExportToExcel": true,
+              "queryType": 7,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Running",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Stopped",
+                          "representation": "disabled",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "tagName",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Tags",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "tagValue",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Tags",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "WebAppName1"
+                  ],
+                  "expandTopLevel": true
+                }
+              }
+            },
+            "showPin": false,
+            "name": "target9-q0"
+          }
+        ]
+      },
+      "name": "Tagging",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

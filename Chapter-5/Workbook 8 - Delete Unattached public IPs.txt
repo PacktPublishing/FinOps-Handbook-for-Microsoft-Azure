@@ -1,0 +1,90 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "value": [
+              "/subscriptions/f48affae-430d-4570-b20e-2ab1c49e4366",
+              "value::all"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "param-sub"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## FinOps Handbook for Microsoft Azure by Packt Publishing | Chapter 5 Hitting the goals for Usage Optimization \r\n### Target 8 -  Delete Unattached public IPs\r\n"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Standard static IP addresses in Azure cost around 4 dollars. It is often possible that workloads that are associated with these IP addresses may no longer exist, but the IP address is preserved. Use the Workbook 8 to find the unattached IP addresses across subscriptions. Once you determine they are no longer needed, delete these IP addresses to save money.",
+              "style": "info"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | extend SubscriptionName=name | join (resources | where type =~ 'Microsoft.Network/publicIPAddresses' and isempty(properties.ipConfiguration) | extend ipdetails=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, PIPRG=resourceGroup, Location=location)on subscriptionId \r\n        | order by ipdetails asc \r\n        | project ipdetails,IPName, SKUName, PIPRG, Location, AllocationMethod, SubscriptionName",
+              "size": 0,
+              "title": "Unattached Public IP Addresses",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target8-q1"
+          }
+        ]
+      },
+      "name": "Tagging",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

@@ -1,0 +1,122 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "value": [
+              "/subscriptions/f48affae-430d-4570-b20e-2ab1c49e4366",
+              "value::all"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "param-sub"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## FinOps Handbook for Microsoft Azure by Packt Publishing | Chapter 5 Hitting the goals for Usage Optimization \r\n### Target 5 -  Enable Azure hybrid benefit for SQL databases, Managed Instance and SQL virtual machine"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Azure Hybrid benefits for SQL Server allows to use SQL Server licenses with Software Assurance to reduce the base rate for the SQL Database Managed Instance and SQL Virtual Machines. Azure is the only cloud provides ability to apply license to fully managed PaaS product. Use Azure Hybrid benefits for SQL server with Azure Hybrid benefit for Windows Server to get maximum savings.",
+              "style": "info"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers\r\n| where type =~ 'Microsoft.Resources/subscriptions' \r\n| extend SubscriptionName=name | join (resources |  where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and tostring(properties.['licenseType']) == 'LicenseIncluded' \r\n| extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])) on subscriptionId \r\n| project SQLDBID,SQLName,SQLRG, SKUName, SKUTier, SQLLocation, LicenseType, StorageAccountType, SubscriptionName\r\n",
+              "size": 0,
+              "title": "Azure SQL Databases not using Hybrid Benefit",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target5-q1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers\r\n | where type =~ 'Microsoft.Resources/subscriptions' \r\n | extend SubscriptionName=name \r\n | join (resources |  where type =~ 'Microsoft.Sql/managedInstances' and tostring(properties.['licenseType']) == 'LicenseIncluded'\r\n | extend ManagedInstance=id, SQLRG=resourceGroup, SQLLocation=location, LicenseType = tostring(properties.['licenseType'])) on subscriptionId \r\n | project ManagedInstance,SQLRG, SQLLocation, LicenseType, SubscriptionName\r\n ",
+              "size": 0,
+              "title": "Azure SQL Managed Instances not using Hybrid Benefit",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target5-q2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | extend SubscriptionName=name | join ( resources | where type =~ 'Microsoft.SqlVirtualMachine/SqlVirtualMachines' and tostring(properties.['sqlServerLicenseType']) != 'AHUB'  | extend SQLID=id, VMName = name, VMRG = resourceGroup, VMLocation = location, LicenseType = tostring(properties.['sqlServerLicenseType']), OSType=tostring(properties.storageProfile.imageReference.offer), SQLAgentType = tostring(properties.['sqlManagement']), SQLVersion = tostring(properties.['sqlImageOffer']), SQLSKU=tostring(properties.['sqlImageSku'])) on subscriptionId \r\n    | order by id asc    \r\n    | project SQLID,VMName,VMRG, VMLocation, SQLVersion, SQLSKU, SQLAgentType, LicenseType, SubscriptionName\r\n    | where SQLSKU != \"Developer\" and SQLSKU != \"Express\"",
+              "size": 0,
+              "title": "SQL Virtual Machines not using Hybrid Benefit",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target5-q3"
+          }
+        ]
+      },
+      "name": "Tagging",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

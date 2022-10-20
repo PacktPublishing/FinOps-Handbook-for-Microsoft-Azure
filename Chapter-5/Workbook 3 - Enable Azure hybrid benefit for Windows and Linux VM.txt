@@ -1,0 +1,105 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "value": [
+              "/subscriptions/f48affae-430d-4570-b20e-2ab1c49e4366"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "param-sub"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## FinOps Handbook for Microsoft Azure by Packt Publishing | Chapter 5 Hitting the goals for Usage Optimization \r\n### Target 3 -  Enable Azure hybrid benefit for Windows and Linux virtual machines"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "When",
+              "style": "info"
+            },
+            "name": "rg-info"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | extend SubscriptionName=name | join ( resources | where type =~ 'microsoft.compute/virtualmachines' and  tostring(properties.storageProfile.osDisk.osType) == 'Windows' and tostring(properties.['licenseType']) !has 'Windows' | extend WindowsId=id, VMName=name, VMLocation=location, VMRG=resourceGroup, OSType=tostring(properties.storageProfile.imageReference.offer), OsVersion = tostring(properties.storageProfile.imageReference.sku), VMSize=tostring (properties.hardwareProfile.vmSize), LicenseType = tostring(properties.['licenseType'])) on subscriptionId \r\n    | order by VMSize asc \r\n        | project WindowsId,VMName,VMRG,VMSize, VMLocation,OSType, OsVersion,LicenseType, SubscriptionName",
+              "size": 0,
+              "title": "Windows VMs without Azure Hybrid Benefit enabled",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target3-q1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | extend SubscriptionName=name | join ( resources | where type =~ 'microsoft.compute/virtualmachines' and properties.storageProfile.imageReference.publisher == 'suse' or properties.storageProfile.imageReference.publisher=='RedHat' and tostring(properties.['licenseType']) != 'SLES_BYOS' and tostring(properties.['licenseType']) != 'REHL_BYOS' | extend WindowsId=id, VMName=name, VMLocation=location, VMRG=resourceGroup, OSType=tostring(properties.storageProfile.imageReference.offer), OsVersion = tostring(properties.storageProfile.imageReference.sku), VMSize=tostring (properties.hardwareProfile.vmSize), LicenseType = tostring(properties.['licenseType'])) on subscriptionId \r\n    | order by VMSize asc \r\n        | project WindowsId,VMName,VMRG, VMLocation,OSType, OsVersion,LicenseType, VMSize, SubscriptionName",
+              "size": 0,
+              "title": "Linux VMs without Azure Hybrid Benefit enabled",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ]
+            },
+            "name": "target3-q2"
+          }
+        ]
+      },
+      "name": "Tagging",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
