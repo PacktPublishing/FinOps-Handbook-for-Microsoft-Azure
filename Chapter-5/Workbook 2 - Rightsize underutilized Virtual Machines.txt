@@ -53,7 +53,7 @@
           {
             "type": 1,
             "content": {
-              "json": "When",
+              "json": "Right-sizing is a key lever to reduce cost and optimize resources. It’s an exercise to find out the smallest VM instance that supports your workload requirements. Azure Advisor automatically evaluate your cloud footprint and analyze CPU, Memory and Network utilization in past 7 days. Then using algorithms, it calculates appropriate SKU or Instance count. Azure advisor determines the best fit and the cheapest costs with no performance impacts and generates the recommendation to right-size. Use the workbook 2 which provides list of right-size recommendations for your Virtual Machines and Virtual Machine Scale Sets.",
               "style": "info"
             },
             "name": "rg-info"
@@ -62,7 +62,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "advisorresources\r\n| where type == \"microsoft.advisor/recommendations\"\r\n| where tostring (properties.category) has \"Cost\"\r\n| where properties.impactedField has \"Compute\" or properties.impactedField has \"Container\" or properties.impactedField has \"Web\"\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,subscriptionId,Recommendation=tostring(properties.shortDescription.problem),name",
+              "query": "advisorresources\r\n| where type == \"microsoft.advisor/recommendations\"\r\n| where tostring (properties.category) has \"Cost\"\r\n| where properties.impactedField has \"Compute\" or properties.impactedField has \"Container\" or properties.impactedField has \"Web\"\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,Action=tostring(properties.extendedProperties.recommendationMessage),AdditionaInfo=properties.extendedProperties,subscriptionId,Recommendation=tostring(properties.shortDescription.problem),name",
               "size": 0,
               "title": "Azure Advisor Cost recommendations",
               "showExportToExcel": true,
