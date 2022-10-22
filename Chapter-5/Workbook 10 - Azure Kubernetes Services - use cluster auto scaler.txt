@@ -54,7 +54,7 @@
           {
             "type": 1,
             "content": {
-              "json": "When ",
+              "json": "Azure Kubernetes Service (AKS) clusters are most common now a days due to the popularity of containers. With hundreds of clusters in your subscriptions various cost savings opportunities are available. Use the cluster autoscaler to automatically adjust number of agent nodes based on workload. Use the spot VMS for the workload that can handle interruptions. Use the horizontal pod autoscaler to adjust the number of pools depending on CPU utilization and other metrics.  And last, use cluster start / stop feature in AKS for development / test scenarios to save the cost. Use the workbook 10 to find the cost savings opportunities described above.",
               "style": "info"
             },
             "name": "rg-info"
