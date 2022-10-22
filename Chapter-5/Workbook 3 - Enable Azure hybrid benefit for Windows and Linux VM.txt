@@ -53,7 +53,7 @@
           {
             "type": 1,
             "content": {
-              "json": "When",
+              "json": "Virtual machines deployed from pay-as-you-go images on Azure incur both an infrastructure fee and a software fee. Azure Hybrid Benefit for Windows Server allows you to use your on-premises Windows Server licenses and run Windows virtual machines on Azure at a reduced cost. Now Azure also offers BYOL for Red Hat Enterprise Linux (RHEL) and SUSE Linux Enterprise Server (SLES) virtual machines. With this benefit, your RHEL or SLES subscription covers your software fee. You pay only infrastructure costs for your virtual machine. Use the workbook 3 to list out your Windows and Linux virtual machines which does not have Hybrid Benefit enabled. Then use the CLI or Azure Portal to enable the hybrid benefit to optimize the savings.   ",
               "style": "info"
             },
             "name": "rg-info"
