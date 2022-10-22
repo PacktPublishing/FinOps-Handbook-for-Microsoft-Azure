@@ -53,7 +53,7 @@
           {
             "type": 1,
             "content": {
-              "json": "When ",
+              "json": "Azure app services have various ways to control and optimize the cost. App service v3 plan gives 20% discounts over v2 plan for comparable configurations. V3 Plan also supports Reservations. The reservation discount is applied automatically to the number of running instances that match the reservation scope and attributes. Leverage the app service’s excellent ability to scale-out and scale-in. Using the auto-scaling, you can further optimize the cost by matching your workload requirements for compute capacity. Use Workbook 9 to identify the older v2 app service plans and upgrade it to v3. Also verify auto-scaling is enabled for all the web apps.",
               "style": "info"
             },
             "name": "rg-info"
