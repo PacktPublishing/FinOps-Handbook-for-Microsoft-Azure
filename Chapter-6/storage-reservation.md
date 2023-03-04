@@ -1,0 +1,1 @@
+# Purchase azure storage reservations
